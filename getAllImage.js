@@ -1,16 +1,16 @@
 const puppeteer = require('puppeteer');
 const fs = require("fs");
-const path = require('path');
 const axios = require('axios');
 
-async function getAllImageOfWebsite(websiteLink,txtName,txtDirectory) {
+async function getAllImageOfWebsite(websiteLink,imgDir) {
     try{
         const browser = await puppeteer.launch();
         const page = await browser.newPage();
+
+        if (!fs.existsSync(imgDir)) {
+            fs.mkdirSync(imgDir)
+        }
         
-        // Get the page url from the user
-        let baseURL = process.argv[2] ? process.argv[2] : websiteLink
-  
         await page.goto(websiteLink, {
             waitUntil: 'networkidle2',
         });
@@ -38,23 +38,28 @@ async function getAllImageOfWebsite(websiteLink,txtName,txtDirectory) {
             return imageArray
         })
         
-        await browser.close();
+        imageBank.map((image) => {
+            if(image.filename.split('.')[1] == 'jpg' || image.filename.split('.')[1] == 'png'){
+                let filename = `./${imgDir}/${image.filename}`
+                saveImageToDisk(image.src, filename,image.filename)
+            }
+        })
 
-        // console.log(imageBank)
-        // imageBank.map((image) => {
-        //     let filename = `./images/${image.filename}`
-        //     saveImageToDisk(image.src, filename)
-        // })
+        await browser.close();
         
     }catch(err){
         console.log(err)
     }
 }
 
-function saveImageToDisk(url,filename){
-    axios.get(url)
-    .then(res => {
-        fs.createWriteStream(filename);
+function saveImageToDisk(url,filename,imageName){
+    axios({
+        method: "get",
+        url: url,
+        responseType: "stream"
+    }).then(function (response) {
+        response.data.pipe(fs.createWriteStream(filename));
+        console.log(`Image : ${imageName} has been saved`)
     })
     .catch((err) => {
         console.log(err)

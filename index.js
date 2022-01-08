@@ -17,9 +17,9 @@ const {
 
 const websiteLink = 'https://stocksnap.io/';
 const name = 'exampleTxt';
-const directory = 'Text'
+const directory = 'images'
 
 // makeWebsiteToImage(websiteLink,name,directory);
 // makeWebsiteToPdf(websiteLink,name,directory);
 // getAllTextOfWebsite(websiteLink,name,directory);
-getAllImageOfWebsite(websiteLink,name,directory)
+getAllImageOfWebsite(websiteLink,directory)
